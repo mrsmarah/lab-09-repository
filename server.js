@@ -68,7 +68,7 @@ function weatherHandler(request, response) {
     `https://api.weatherbit.io/v2.0/forecast/daily?city=${request.query.search_query}&key=${process.env.WEATHER_API_KEY}`
     )
     .then((skyData) => {
-      console.log(skyData); 
+      // console.log(skyData); 
       const weatherDataArr = skyData.body.data.map((day) => {
         return new Weather(day);
       });
@@ -92,10 +92,10 @@ function trailsHandler(request, response) {
 
 function movieHandler(request, response){
   superagent(
-    `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${request.query.city}`
+    `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${request.query.search_query}`
     )
     .then((movieResults) => {
-        console.log(movieResults); 
+        // console.log(movieResults); 
       const movieDataArr = movieResults.body.results.map((movieData) => {
         return new Movie(movieData);
       });
@@ -104,12 +104,30 @@ function movieHandler(request, response){
     .catch((err) => errorHandler(err, request, response));
 }
 
+
+  // function movieHandler(request, response) {
+  //   gettheMovie(request.query)
+  //     .then(movieData => response.status(200).send(movieData));
+  // } 
+  // function gettheMovie(query) {
+  //   const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIES_API_KEY}&query=${query.search_query}`;
+  //   return superagent.get(url)
+  //     .then(database => {
+  //       return database.body.results.map(movie => {
+  //         return new Movies(movie);
+  //       })
+  //     })
+  //     .catch(error => {
+  //       errorHandler(error,request,response);
+  //     })
+  // }
+
+
 function yelpHandler(request, response){
   superagent(
-    //GET https://api.yelp.com/v3/businesses/search
-    // `GET https://api.yelp.com/v3/businesses/{id}`
-    `https://api.yelp.com/v3/businesses/search${process.env.YELP_API_ID}?location=${request.query.city}&locale=it_IT&term=restaurants`
+    `https://api.yelp.com/v3/businesses/search?location=${request.query.city}`
     )
+    .set('Authorization', `Bearer ${process.env.YELP_API_KEY}`)
     .then((yelpResults) => {
         // console.log(yelpResults); 
       const yelpDataArr = yelpResults.body.businesses.map((yelpData) => {
@@ -151,7 +169,7 @@ function Movie(movieData) {
   this.overview = movieData.overview;
   this.average_votes = movieData.vote_average;
   this.total_votes = movieData.vote_count;
-  this.image_url = movieData.poster_path;
+  this.image_url =  `https://image.tmdb.org/t/p/w500${movieData.poster_path}`;
   this.popularity = movieData.popularity;
   this.released_on = movieData.release_date;
 }
@@ -182,3 +200,50 @@ client.connect().then(() => {
     throw new Error(`startup error ${err}`);
   });
 
+
+  // function movieHandler(request, response) {
+  //   gettheMovie(request.query)
+  //     .then(movieData => response.status(200).send(movieData));
+  // } 
+  // function gettheMovie(query) {
+  //   const url = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIES_API_KEY}&query=${query.search_query}`;
+  //   return superagent.get(url)
+  //     .then(database => {
+  //       return database.body.results.map(movie => {
+  //         return new Movies(movie);
+  //       })
+  //     })
+  //     .catch(error => {
+  //       errorHandler(error,request,response);
+  //     })
+  // }
+  // function Movies(database) {
+  //   this.title = database.title;
+  //   this.overview = database.overview;
+  //   this.average_votes = database.vote_average;
+  //   this.popularity = database.popularity;
+  //   this.released_date = database.release_date;
+  //   this.image_url = `https://image.tmdb.org/t/p/w500${database.poster_path}`;
+  // } 
+  // function yelpHandler(request, response) {
+  //   const cityName = request.query.city;
+  //   const key = process.env.YELP_API_KEY;
+  //   superagent(
+  //     `https://api.yelp.com/v3/businesses/search?location=${cityName}`
+  //   )
+  //   .set('Authorization', `Bearer ${key}`)
+  //     .then((trialData) => {
+  //       const YelpData = trialData.body.businesses.map((database) => {
+  //         return new Yelp(database);
+  //       });
+  //       response.status(200).json(YelpData);
+  //     })
+  //     .catch((error) => errorHandler(error, request, response))
+  // }
+  // function Yelp(database) {
+  //   this.name = database.name;
+  //   this.image_url = database.image_url;
+  //   this.price = database.price;
+  //   this.rating = database.rating;
+  //   this.url = database.url;
+  // }
